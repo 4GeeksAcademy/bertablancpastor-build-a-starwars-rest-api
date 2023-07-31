@@ -100,6 +100,9 @@ def get_one_character(character_id):
 
     character_query = Characters.query.filter_by(id=character_id).first()
 
+    if character_query is None:
+        return jsonify({"msg": "Character not found"}), 404
+
     response_body = {
         "msg": "ok one character",
         "result": character_query.serialize()
@@ -112,13 +115,16 @@ def get_one_character(character_id):
 def create_character():
     
     request_body = request.get_json(force=True)
+    if "name" or "gender" or "birth_year" not in request_body:
+        # raise es para levantar una excepcion de error en la API
+        raise APIException("Faltan datos", status_code=400)
     # creacion de un registro en la tabla de user
     character = Characters(name=request_body["name"], birth_year=request_body["birth_year"], gender=request_body["gender"], height=request_body["height"], skin_color=request_body["skin_color"], eye_color=request_body["eye_color"])
     db.session.add(character)
     db.session.commit()
     
     response_body = {
-        "msg": "character created",
+        "msg": "Character created",
     }
     
     return jsonify(response_body), 200
@@ -141,8 +147,10 @@ def get_all_planets():
 #get_one_planet
 @app.route('/planets/<int:planet_id>', methods=['GET'])
 def get_one_planet(planet_id):
-
     planet_query = Planets.query.filter_by(id=planet_id).first()
+
+    if planet_query is None:
+        return jsonify({"msg":"Planet not found"}),404
 
     response_body = {
         "msg": "ok one planet",
@@ -210,6 +218,7 @@ def create_one_favorite():
     
     response_body = {
         "msg": "Favorite created",
+        
     }
     
     return jsonify(response_body), 200
@@ -228,7 +237,6 @@ def delete_one_favorite(favorite_id):
     }
     
     return jsonify(response_body), 200
-
 
 # END endpoints
 

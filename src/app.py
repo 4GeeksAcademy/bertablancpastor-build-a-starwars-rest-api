@@ -79,13 +79,12 @@ def create_user():
     
     return jsonify(response_body), 200
 
+#CHARACTERS
 #get_all_charaters
 @app.route('/characters', methods=['GET'])
 def get_all_characters():
     characters_query = Characters.query.all()
     results = list(map(lambda item: item.serialize(), characters_query))
-
-    print(results)
 
     response_body = {
         "msg": "ok characters",
@@ -100,6 +99,7 @@ def get_one_character(character_id):
 
     character_query = Characters.query.filter_by(id=character_id).first()
 
+    # Manejo de errores para cuando se busca una id que no está
     if character_query is None:
         return jsonify({"msg": "Character not found"}), 404
 
@@ -129,6 +129,7 @@ def create_character():
     
     return jsonify(response_body), 200
 
+#PLANETS
 #get_all_planets
 @app.route('/planets', methods=['GET'])
 def get_all_planets():
@@ -149,6 +150,7 @@ def get_all_planets():
 def get_one_planet(planet_id):
     planet_query = Planets.query.filter_by(id=planet_id).first()
 
+    # Manejo de errores para cuando se busca una id que no está
     if planet_query is None:
         return jsonify({"msg":"Planet not found"}),404
 
@@ -165,12 +167,17 @@ def create_planet():
     
     request_body = request.get_json(force=True)
 
+    #planet_exists = Planets.query.filter_by(name=request_body["name"])
+    #if planet_exists is None :
+        #return jsonify({"msg": "Name information is missing."}), 400
+
     planet = Planets(name=request_body["name"], climate=request_body["climate"], population=request_body["population"], orbital_period=request_body["orbital_period"], rotation_period=request_body["rotation_period"], diameter=request_body["diameter"])
     db.session.add(planet)
     db.session.commit()
     
     response_body = {
-        "msg": "planet created",
+        "msg": "Planet created",
+        "planet": planet.serialize()
     }
     
     return jsonify(response_body), 200
